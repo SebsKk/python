@@ -65,3 +65,34 @@ sns.distplot(Y_hat, hist=False, color="b", label="Fitted Values" , ax=ax1)
 plt.title('Actual vs Fitted Values for Price')
 plt.xlabel('Price (in dollars)')
 plt.ylabel('Proportion of Cars')
+
+#multiple linear regression using pipeline
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+y = df['price']
+Input=[('scale',StandardScaler()),('model',LinearRegression())]
+
+pipe=Pipeline(Input)
+
+pipe.fit(Z,y)
+
+ypipe=pipe.predict(Z)
+ypipe[0:10]
+
+#how accurate is the model for highway-mpg
+#R^2
+d.fit(X,Y)
+d.score(X,Y)
+#Mean squared
+Yhat=d.predict(X)
+Yhat
+from sklearn.metrics import mean_squared_error
+mean_squared_error(Y,Yhat)
+
+#for the multiple linear regression
+#R^2
+d.fit(Z,Y)
+d.score(Z,Y)
+#mean_squared
+Yhat=d.predict(Z)
+mean_squared_error(Y,Yhat)
