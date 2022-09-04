@@ -1,0 +1,68 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler,PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+%matplotlib inline
+
+df=pd.read_csv('/Users/kaczm/Downloads/kc_house_data_NaN.csv')
+df.drop(["id", "Unnamed: 0"], axis=1, inplace = True)
+
+df.describe()
+
+mean=df['bedrooms'].mean()
+df['bedrooms'].replace(np.nan,mean, inplace=True)
+
+mean2=df['bathrooms'].mean()
+df['bathrooms'].replace(np.nan,mean2, inplace=True)
+unique_floor_count  = df['floors'].value_counts().to_frame()
+sns.boxplot(x=df['waterfront'],y=df['price'])
+sns.regplot(x="sqft_above", y="price", data=df)
+
+df[['sqft_above','price']].corr()
+df.corr()['price'].sort_values()
+
+X = df[['long']]
+Y = df['price']
+lm = LinearRegression()
+lm.fit(X,Y)
+lm.score(X, Y)
+
+lm2 = LinearRegression()
+x_data = df[['sqft_living']]
+y_data = df['price']
+lm2.fit(x_data,y_data)
+lm2.score(x_data,y_data)
+
+Z = df[["floors", "waterfront","lat" ,"bedrooms" ,"sqft_basement" ,"view" ,"bathrooms","sqft_living15","sqft_above","grade","sqft_living"]]
+lm2.fit(Z,y_data)
+lm2.score(Z,y_data)
+
+Input=[('scale',StandardScaler()),('polynomial', PolynomialFeatures(include_bias=False)),('model',LinearRegression())]
+pipe = Pipeline(Input)
+x_train, x_test, y_train, y_test = train_test_split(Z,y_data,test_size=0.2,random_state=1)
+pipe.fit(x_train,y_train)
+pipe.score(x_test,y_test)
+
+from sklearn.model_selection import cross_val_score
+
+features =["floors", "waterfront","lat" ,"bedrooms" ,"sqft_basement" ,"view" ,"bathrooms","sqft_living15","sqft_above","grade","sqft_living"]    
+X = df[features]
+Y = df['price']
+
+x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.15, random_state=1)
+
+from sklearn.linear_model import Ridge
+
+rl = Ridge(alpha=0.1)
+rl.fit(x_train,y_train)
+rl.score(x_test,y_test)
+
+pf = PolynomialFeatures(degree=2)
+x_train_pf = pf.fit_transform(x_train)
+x_test_pf = pf.fit_transform(x_test)
+rl.fit(x_train_pf,y_train)
+rl.score(x_test_pf,y_test)
