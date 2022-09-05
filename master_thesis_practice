@@ -1,0 +1,40 @@
+import numpy as np
+import seaborn as sns
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler,PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
+df=pd.read_csv('/Users/kaczm/OneDrive/Dokumenty/machine_learning.csv')
+df.rename(columns={'Company': 'Unnamed: 0'})
+y_data = df['Valuation']
+x_data = df.drop(['Valuation','Unnamed: 0'],axis=1)
+x_data['Kompatybilność zespołu'].replace(np.nan,df['Kompatybilność zespołu'].mean(),inplace=True)
+
+
+x_data['Przewidywany_czas'].replace(np.nan,df['Przewidywany_czas'].mean(),inplace=True)
+x_data['Profil przedsiębiorczy założycieli'].replace(np.nan,df['Profil przedsiębiorczy założycieli'].mean(),inplace=True)
+x_data['Dynamika społeczna tematyki poruszanej przez startup'].replace(np.nan,df['Dynamika społeczna tematyki poruszanej przez startup'].mean(),inplace=True)
+x_data =  x_data.astype({'Kompatybilność zespołu':int,'Przewidywany_czas':int,'Dynamika społeczna tematyki poruszanej przez startup':int,'Profil przedsiębiorczy założycieli':int})
+x_data['Przewidywany_czas'].replace(np.nan,df['Przewidywany_czas'].mean(),inplace=True)
+x_data['Dynamika społeczna tematyki poruszanej przez startup'].replace(np.nan,df['Dynamika społeczna tematyki poruszanej przez startup'].mean(),inplace=True)
+x_data['Profil przedsiębiorczy założycieli'].replace(np.nan,df['Profil przedsiębiorczy założycieli'].mean(),inplace=True)
+
+lr = LinearRegression()
+x_train,x_test,y_train,y_test = train_test_split(x_data, y_data, test_size=0.15, random_state=1)
+lr = lr.fit(x_train,y_train)
+lr.score(x_test,y_test)
+
+Y_hat = lr.predict(x_test)
+ax1 = sns.distplot(df['Valuation'], hist=False, color="r", label="Actual Value")
+sns.distplot(Y_hat, hist=False, color="b", label="Fitted Values" , ax=ax1)
+
+plt.title('Actual vs Fitted Values for Valuation')
+plt.xlabel('Valuation')
+plt.ylabel('Proportion of impact values')
+plt.xlim(0,)
+
+#let's try polynomial
+from sklearn.preprocessing import PolynomialFeatures
+pr = PolynomialFeatures(degree=5)
+x_train_pr=pr.fit_transform(x_train)
+x_test_pr=pr.fit_transform(x_test)
