@@ -1,0 +1,28 @@
+import requests 
+import requests_cache
+import json
+
+flickr_key = '47116ce7d3bf9d2d8f3a1acfa971f639'
+
+def photo_search(tags):
+    base_url = 'https://api.flickr.com/services/rest'
+    session = requests_cache.CachedSession()
+    paramsy = {} 
+    paramsy['api_key'] = flickr_key
+    paramsy['method'] = 'flickr.photos.search'
+    paramsy['format'] = 'json'
+    paramsy['nojsoncallback'] = 1
+    paramsy['tags'] = tags 
+    paramsy['tag_mode'] = 'all'
+    paramsy['media'] = 'photos'
+
+    photos = session.get(base_url, params = paramsy)
+    s = photos.json()
+
+    return s
+
+for photos in photo_search('window,tree')['photos']['photo']:
+    owner = photos['owner']
+    photo_id =  photos['id']
+    url = 'https://www.flickr.com/photos/{}/{}'.format(owner, photo_id)
+    print(url)
