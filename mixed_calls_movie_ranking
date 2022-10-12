@@ -1,0 +1,40 @@
+import requests
+import requests_cache
+import json
+from datetime import timedelta
+
+apikey_omdb = 'aa7e49eb'
+
+session = requests_cache.CachedSession(expire_after = timedelta(days = 1))
+
+def get_movies_from_tastedive(title):
+    movie_list = []
+    basic_url = 'https://tastedive.com/api/similar'
+    paramsy = {}
+    paramsy['q'] = title
+    paramsy['limit'] = '5'
+    paramsy['type'] = 'movies'
+    get_call = session.get(basic_url,params = paramsy).json()
+    similar_movies = get_call['Similar']['Results']
+    for movies in similar_movies:
+        movie_list.append(movies['Name'])
+    return movie_list
+
+
+def get_from_omdb(movie_list):
+    score_list = {}
+    basic_url = 'https://www.omdbapi.com/'
+    paramsy = {}
+    paramsy['apikey'] = apikey_omdb
+   
+    for movies in movie_list:
+        paramsy['t'] = movies
+        get_call = session.get(basic_url, params = paramsy)
+        score = get_call.json()['imdbRating']
+        score_list[movies] = str(score)
+
+    return sorted(score_list.items(), key = lambda m : m[1], reverse = True)
+   
+print(get_from_omdb(get_movies_from_tastedive('Tarzan')))
+
+
