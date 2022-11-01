@@ -1,0 +1,55 @@
+class WOFPlayer: 
+
+    def __init__(self, name):
+        self.name = name 
+        self.prizeMoney = 0 
+        self.prizes = []
+
+    def addMoney(self, amt):
+        self.prizeMoney += amt 
+
+    def goBankrupt(self):
+        self.prizeMoney = 0 
+
+    def __str__(self):
+        return '{} (${})'.format(self.name, self.prizeMoney)                        
+
+class WOFHumanPlayer(WOFPlayer):
+
+    def getMove(self, category, obscuredPhrase, guessed):
+        print(' {} has ${} \n Category: {} \n Phrase: {} \n Guessed: {} \n Guess a letter, phrase, or type "exit" or "pass":'.format(self.name, self.prizeMoney, category, obscuredPhrase, guessed))
+        x = input()
+        return x
+
+class WOFComputerPlayer(WOFPlayer):
+
+    SORTED_FREQUENCIES = 'ZQXJKVBPYGFWMUCLDRHSNIOATE'
+
+    def __init__(self, name, difficulty):
+        super().__init__()
+        self.difficulty = difficulty
+
+    def smartCoinFlip(self):
+        x = random.randint(1,10)
+        if x > self.difficulty:
+            return False
+        else: 
+            return True            
+
+    def getPossibleLetters(self, guessed):
+        VOWELS = 'AEIOU'
+        if self.prizeMoney >= 250:
+            return [let for let in self.SORTED_FREQUENCIES if let not in guessed]
+        else: 
+            return [let for let in self.SORTED_FREQUENCIES if let not in guessed and let not in VOWELS]
+    
+    def getMove(self, category, obscuredPhrase, guessed):
+        lst = self.getPossibleLetters(guessed)
+        if len(lst) == 0:
+            return 'pass'
+        else:
+            y = self.smartCoinFlip()
+            if y == True:
+                return lst[-1]
+            else:
+                return random.choice(lst)      
